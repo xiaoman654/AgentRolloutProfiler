@@ -1,0 +1,17 @@
+# Paths are server defaults. Override them locally as needed.
+warmgigpo_project: /root/autodl-fs/WarmGiGPO-WebShop
+verl_agent_path: /root/autodl-fs/WarmGiGPO-WebShop/third_party/verl-agent
+webshop_path: /root/autodl-fs/WarmGiGPO-WebShop/third_party/WebShop
+
+logs:
+  rl_glob: /root/autodl-fs/WarmGiGPO-WebShop/logs/rl/*.log
+  eval_glob: /root/autodl-fs/WarmGiGPO-WebShop/logs/eval/*.log
+
+data:
+  train_parquet: /root/data/verl-agent/text_128_64/train.parquet
+  eval_parquet: /root/data/verl-agent/text_128_64/test.parquet
+
+profiling:
+  action_regex: "<action>(.*?)</action>"
+  max_report_examples: 5
+

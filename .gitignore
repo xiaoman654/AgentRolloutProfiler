@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Local outputs
+outputs/
+reports/*.json
+reports/*.csv
+
+# Large or external artifacts
+data/
+logs/
+*.parquet
+
+# System/editor
+.DS_Store
+.vscode/
+
