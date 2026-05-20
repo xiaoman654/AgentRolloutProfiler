@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -13,13 +14,14 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from profiler.log_parser import iter_existing_logs, parse_response_cases, parse_step_metrics
-from profiler.report import build_markdown_report
+from profiler.report import build_markdown_report, build_profile_summary
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--logs", nargs="+", required=True, help="Log paths or glob patterns.")
     parser.add_argument("--out", default="reports/baseline_profile.md")
+    parser.add_argument("--json-out", default=None, help="Optional machine-readable JSON summary path.")
     return parser.parse_args()
 
 
@@ -40,9 +42,15 @@ def main() -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(report, encoding="utf-8")
 
-    print(f"logs={len(logs)} step_rows={len(step_rows)} cases={len(cases)} wrote={out_path}")
+    json_out = Path(args.json_out) if args.json_out else out_path.with_suffix(".json")
+    json_out.parent.mkdir(parents=True, exist_ok=True)
+    json_out.write_text(json.dumps(build_profile_summary(step_rows, cases), indent=2), encoding="utf-8")
+
+    print(
+        f"logs={len(logs)} step_rows={len(step_rows)} cases={len(cases)} "
+        f"wrote={out_path} json={json_out}"
+    )
 
 
 if __name__ == "__main__":
     main()
-

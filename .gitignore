@@ -7,8 +7,6 @@ venv/
 
 # Local outputs
 outputs/
-reports/*.json
-reports/*.csv
 
 # Large or external artifacts
 data/
@@ -18,4 +16,3 @@ logs/
 # System/editor
 .DS_Store
 .vscode/
-

@@ -1,8 +1,9 @@
-"""Generate markdown summaries from parsed profiling data."""
+"""Generate markdown and JSON summaries from parsed profiling data."""
 
 from __future__ import annotations
 
 from collections import Counter, defaultdict
+from pathlib import Path
 from statistics import mean
 
 from .schema import ResponseCase, StepMetrics
@@ -35,6 +36,10 @@ def _fmt(value: float | None) -> str:
     return f"{value:.3f}"
 
 
+def _short_log_name(log: str) -> str:
+    return Path(log).name
+
+
 def _average(rows: list[StepMetrics], key: str) -> float | None:
     values = [row.metrics[key] for row in rows if key in row.metrics]
     return mean(values) if values else None
@@ -63,6 +68,90 @@ def search_query_stats(cases: list[ResponseCase]) -> tuple[int, int, float]:
     return total, unique, repeat_rate
 
 
+def _action_counts(cases: list[ResponseCase]) -> dict[str, int]:
+    counts = Counter(case.action_type or "unknown" for case in cases if case.action or case.response)
+    return dict(counts.most_common())
+
+
+def _score_summary(cases: list[ResponseCase]) -> dict[str, int]:
+    scored = [case for case in cases if case.score is not None]
+    nonzero = [case for case in scored if case.score and case.score > 0]
+    success = [case for case in scored if case.score == 10.0]
+    return {
+        "parsed_cases": len(cases),
+        "scored_cases": len(scored),
+        "nonzero_score_cases": len(nonzero),
+        "success_score_10_cases": len(success),
+    }
+
+
+def _metric_average_block(rows: list[StepMetrics], keys: list[str]) -> dict[str, float | None]:
+    return {key: _average(rows, key) for key in keys}
+
+
+def _split_rows(rows: list[StepMetrics]) -> tuple[list[StepMetrics], list[StepMetrics]]:
+    validation_rows = [row for row in rows if "timing_s/testing" in row.metrics]
+    normal_rows = [row for row in rows if "timing_s/testing" not in row.metrics and "timing_s/step" in row.metrics]
+    return normal_rows, validation_rows
+
+
+def build_profile_summary(rows: list[StepMetrics], cases: list[ResponseCase]) -> dict[str, object]:
+    """Build a machine-readable summary for downstream plotting/comparison."""
+
+    grouped_rows = _group_by_log(rows)
+    cases_by_log: dict[str, list[ResponseCase]] = defaultdict(list)
+    for case in cases:
+        cases_by_log[case.source_log].append(case)
+
+    per_log: dict[str, object] = {}
+    for log, log_rows in grouped_rows.items():
+        normal_rows, validation_rows = _split_rows(log_rows)
+        testing_share = None
+        validation_step_sum = _sum(validation_rows, "timing_s/step")
+        if validation_step_sum:
+            testing_share = _sum(validation_rows, "timing_s/testing") / validation_step_sum
+        log_cases = cases_by_log.get(log, [])
+        total_search, unique_search, repeat_rate = search_query_stats(log_cases)
+        per_log[log] = {
+            "short_name": _short_log_name(log),
+            "step_rows": len(log_rows),
+            "normal_rows": len(normal_rows),
+            "validation_rows": len(validation_rows),
+            "avg_normal_step_s": _average(normal_rows, "timing_s/step"),
+            "avg_validation_step_s": _average(validation_rows, "timing_s/step"),
+            "validation_testing_share": testing_share,
+            "timing_avg_all_rows": _metric_average_block(log_rows, TIMING_KEYS),
+            "timing_avg_normal_rows": _metric_average_block(normal_rows, TIMING_KEYS),
+            "timing_avg_validation_rows": _metric_average_block(validation_rows, TIMING_KEYS),
+            "length_avg_all_rows": _metric_average_block(log_rows, LENGTH_KEYS),
+            "action_type_counts": _action_counts(log_cases),
+            "search_query_total": total_search,
+            "search_query_unique": unique_search,
+            "search_query_repeat_rate": repeat_rate,
+            "score_summary": _score_summary(log_cases),
+        }
+
+    total_search, unique_search, repeat_rate = search_query_stats(cases)
+    normal_rows, validation_rows = _split_rows(rows)
+    return {
+        "logs": per_log,
+        "overall": {
+            "step_rows": len(rows),
+            "normal_rows": len(normal_rows),
+            "validation_rows": len(validation_rows),
+            "timing_avg_all_rows": _metric_average_block(rows, TIMING_KEYS),
+            "timing_avg_normal_rows": _metric_average_block(normal_rows, TIMING_KEYS),
+            "timing_avg_validation_rows": _metric_average_block(validation_rows, TIMING_KEYS),
+            "length_avg_all_rows": _metric_average_block(rows, LENGTH_KEYS),
+            "action_type_counts": _action_counts(cases),
+            "search_query_total": total_search,
+            "search_query_unique": unique_search,
+            "search_query_repeat_rate": repeat_rate,
+            "score_summary": _score_summary(cases),
+        },
+    }
+
+
 def build_markdown_report(rows: list[StepMetrics], cases: list[ResponseCase]) -> str:
     lines: list[str] = []
     lines.append("# Baseline Rollout Profile")
@@ -70,6 +159,7 @@ def build_markdown_report(rows: list[StepMetrics], cases: list[ResponseCase]) ->
     lines.append("Generated from verl-agent console logs.")
     lines.append("")
 
+    summary = build_profile_summary(rows, cases)
     grouped = _group_by_log(rows)
     lines.append("## Log Summary")
     lines.append("")
@@ -90,15 +180,19 @@ def build_markdown_report(rows: list[StepMetrics], cases: list[ResponseCase]) ->
         )
     lines.append("")
 
-    lines.append("## Timing Averages")
+    normal_rows, validation_rows = _split_rows(rows)
+    lines.append("## Overall Timing Averages")
     lines.append("")
-    lines.append("| Metric | Average |")
-    lines.append("|---|---:|")
+    lines.append("| Metric | All rows | Normal rows | Validation rows |")
+    lines.append("|---|---:|---:|---:|")
     for key in TIMING_KEYS:
-        lines.append(f"| `{key}` | {_fmt(_average(rows, key))} |")
+        lines.append(
+            f"| `{key}` | {_fmt(_average(rows, key))} | "
+            f"{_fmt(_average(normal_rows, key))} | {_fmt(_average(validation_rows, key))} |"
+        )
     lines.append("")
 
-    lines.append("## Length Averages")
+    lines.append("## Overall Length Averages")
     lines.append("")
     lines.append("| Metric | Average |")
     lines.append("|---|---:|")
@@ -106,7 +200,21 @@ def build_markdown_report(rows: list[StepMetrics], cases: list[ResponseCase]) ->
         lines.append(f"| `{key}` | {_fmt(_average(rows, key))} |")
     lines.append("")
 
-    action_counts = Counter(case.action_type or "unknown" for case in cases if case.action or case.response)
+    lines.append("## Per-Log Timing and Length")
+    lines.append("")
+    for log, log_rows in grouped.items():
+        log_normal_rows, log_validation_rows = _split_rows(log_rows)
+        lines.append(f"### `{_short_log_name(log)}`")
+        lines.append("")
+        lines.append("| Metric | Normal rows | Validation rows |")
+        lines.append("|---|---:|---:|")
+        for key in TIMING_KEYS:
+            lines.append(f"| `{key}` | {_fmt(_average(log_normal_rows, key))} | {_fmt(_average(log_validation_rows, key))} |")
+        for key in LENGTH_KEYS:
+            lines.append(f"| `{key}` | {_fmt(_average(log_normal_rows, key))} | {_fmt(_average(log_validation_rows, key))} |")
+        lines.append("")
+
+    action_counts = Counter(summary["overall"]["action_type_counts"])
     lines.append("## Action Type Distribution")
     lines.append("")
     lines.append("| Action type | Count |")
@@ -123,15 +231,13 @@ def build_markdown_report(rows: list[StepMetrics], cases: list[ResponseCase]) ->
     lines.append(f"- observed repeat rate: {_fmt(repeat_rate)}")
     lines.append("")
 
-    scored = [case for case in cases if case.score is not None]
-    nonzero = [case for case in scored if case.score and case.score > 0]
-    success = [case for case in scored if case.score == 10.0]
+    score_summary = summary["overall"]["score_summary"]
     lines.append("## Parsed Case Scores")
     lines.append("")
-    lines.append(f"- parsed cases: {len(cases)}")
-    lines.append(f"- scored cases: {len(scored)}")
-    lines.append(f"- nonzero-score cases: {len(nonzero)}")
-    lines.append(f"- success-score-10 cases: {len(success)}")
+    lines.append(f"- parsed cases: {score_summary['parsed_cases']}")
+    lines.append(f"- scored cases: {score_summary['scored_cases']}")
+    lines.append(f"- nonzero-score cases: {score_summary['nonzero_score_cases']}")
+    lines.append(f"- success-score-10 cases: {score_summary['success_score_10_cases']}")
     lines.append("")
 
     lines.append("## Phase 1 Decision Notes")

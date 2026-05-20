@@ -1,0 +1,182 @@
+{
+  "logs": {
+    "D:\\webshop\\logs\\rl\\qwen15b_gigpo_medium_128_64_20260518_145752.log": {
+      "short_name": "qwen15b_gigpo_medium_128_64_20260518_145752.log",
+      "step_rows": 33,
+      "normal_rows": 28,
+      "validation_rows": 4,
+      "avg_normal_step_s": 24.75775,
+      "avg_validation_step_s": 445.85275,
+      "validation_testing_share": 0.9461133748754493,
+      "timing_avg_all_rows": {
+        "timing_s/gen": 9.0498125,
+        "timing_s/reward": 0.0161875,
+        "timing_s/old_log_prob": 2.186875,
+        "timing_s/ref": 6.1799375,
+        "timing_s/adv": 0.00840625,
+        "timing_s/update_actor": 7.21909375,
+        "timing_s/testing": 421.82725,
+        "timing_s/step": 77.394625
+      },
+      "timing_avg_normal_rows": {
+        "timing_s/gen": 9.074785714285714,
+        "timing_s/reward": 0.016107142857142858,
+        "timing_s/old_log_prob": 2.1950357142857144,
+        "timing_s/ref": 6.213357142857143,
+        "timing_s/adv": 0.008357142857142856,
+        "timing_s/update_actor": 7.244321428571428,
+        "timing_s/testing": null,
+        "timing_s/step": 24.75775
+      },
+      "timing_avg_validation_rows": {
+        "timing_s/gen": 8.875,
+        "timing_s/reward": 0.01675,
+        "timing_s/old_log_prob": 2.12975,
+        "timing_s/ref": 5.946,
+        "timing_s/adv": 0.00875,
+        "timing_s/update_actor": 7.0425,
+        "timing_s/testing": 421.82725,
+        "timing_s/step": 445.85275
+      },
+      "length_avg_all_rows": {
+        "prompt_length/mean": 1048.45446875,
+        "prompt_length/max": 2129.59375,
+        "prompt_length/clip_ratio": 0.0,
+        "response_length/mean": 87.8113125,
+        "response_length/max": 127.5625,
+        "response_length/clip_ratio": 0.11175
+      },
+      "action_type_counts": {
+        "click": 102,
+        "search": 25,
+        "unknown": 7
+      },
+      "search_query_total": 25,
+      "search_query_unique": 25,
+      "search_query_repeat_rate": 0.0,
+      "score_summary": {
+        "parsed_cases": 134,
+        "scored_cases": 134,
+        "nonzero_score_cases": 3,
+        "success_score_10_cases": 3
+      }
+    },
+    "D:\\webshop\\logs\\rl\\qwen15b_sft_verl_gigpo_medium_128_64_20260518_141425.log": {
+      "short_name": "qwen15b_sft_verl_gigpo_medium_128_64_20260518_141425.log",
+      "step_rows": 33,
+      "normal_rows": 28,
+      "validation_rows": 4,
+      "avg_normal_step_s": 21.539214285714287,
+      "avg_validation_step_s": 353.343,
+      "validation_testing_share": 0.940876853369106,
+      "timing_avg_all_rows": {
+        "timing_s/gen": 6.53771875,
+        "timing_s/reward": 0.01709375,
+        "timing_s/old_log_prob": 2.0998125,
+        "timing_s/ref": 5.93359375,
+        "timing_s/adv": 0.00846875,
+        "timing_s/update_actor": 6.85559375,
+        "timing_s/testing": 332.45225,
+        "timing_s/step": 63.0146875
+      },
+      "timing_avg_normal_rows": {
+        "timing_s/gen": 6.554321428571429,
+        "timing_s/reward": 0.016928571428571428,
+        "timing_s/old_log_prob": 2.1126428571428573,
+        "timing_s/ref": 5.96625,
+        "timing_s/adv": 0.008285714285714285,
+        "timing_s/update_actor": 6.874821428571429,
+        "timing_s/testing": null,
+        "timing_s/step": 21.539214285714287
+      },
+      "timing_avg_validation_rows": {
+        "timing_s/gen": 6.4215,
+        "timing_s/reward": 0.01825,
+        "timing_s/old_log_prob": 2.01,
+        "timing_s/ref": 5.705,
+        "timing_s/adv": 0.00975,
+        "timing_s/update_actor": 6.721,
+        "timing_s/testing": 332.45225,
+        "timing_s/step": 353.343
+      },
+      "length_avg_all_rows": {
+        "prompt_length/mean": 1036.0409375,
+        "prompt_length/max": 2178.5625,
+        "prompt_length/clip_ratio": 0.0,
+        "response_length/mean": 23.72771875,
+        "response_length/max": 68.34375,
+        "response_length/clip_ratio": 0.00428125
+      },
+      "action_type_counts": {
+        "click": 74,
+        "search": 25
+      },
+      "search_query_total": 25,
+      "search_query_unique": 25,
+      "search_query_repeat_rate": 0.0,
+      "score_summary": {
+        "parsed_cases": 99,
+        "scored_cases": 99,
+        "nonzero_score_cases": 19,
+        "success_score_10_cases": 19
+      }
+    }
+  },
+  "overall": {
+    "step_rows": 66,
+    "normal_rows": 56,
+    "validation_rows": 8,
+    "timing_avg_all_rows": {
+      "timing_s/gen": 7.793765625,
+      "timing_s/reward": 0.016640625,
+      "timing_s/old_log_prob": 2.14334375,
+      "timing_s/ref": 6.056765625,
+      "timing_s/adv": 0.0084375,
+      "timing_s/update_actor": 7.03734375,
+      "timing_s/testing": 377.13975,
+      "timing_s/step": 70.20465625
+    },
+    "timing_avg_normal_rows": {
+      "timing_s/gen": 7.814553571428571,
+      "timing_s/reward": 0.016517857142857143,
+      "timing_s/old_log_prob": 2.1538392857142856,
+      "timing_s/ref": 6.089803571428572,
+      "timing_s/adv": 0.008321428571428572,
+      "timing_s/update_actor": 7.059571428571428,
+      "timing_s/testing": null,
+      "timing_s/step": 23.148482142857144
+    },
+    "timing_avg_validation_rows": {
+      "timing_s/gen": 7.64825,
+      "timing_s/reward": 0.0175,
+      "timing_s/old_log_prob": 2.069875,
+      "timing_s/ref": 5.8255,
+      "timing_s/adv": 0.00925,
+      "timing_s/update_actor": 6.88175,
+      "timing_s/testing": 377.13975,
+      "timing_s/step": 399.597875
+    },
+    "length_avg_all_rows": {
+      "prompt_length/mean": 1042.247703125,
+      "prompt_length/max": 2154.078125,
+      "prompt_length/clip_ratio": 0.0,
+      "response_length/mean": 55.769515625,
+      "response_length/max": 97.953125,
+      "response_length/clip_ratio": 0.058015625
+    },
+    "action_type_counts": {
+      "click": 176,
+      "search": 50,
+      "unknown": 7
+    },
+    "search_query_total": 50,
+    "search_query_unique": 50,
+    "search_query_repeat_rate": 0.0,
+    "score_summary": {
+      "parsed_cases": 233,
+      "scored_cases": 233,
+      "nonzero_score_cases": 22,
+      "success_score_10_cases": 22
+    }
+  }
+}

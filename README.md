@@ -55,8 +55,12 @@ From this repository:
 ```bash
 python scripts/analyze_verl_log_timing.py \
   --logs /path/to/WarmGiGPO-WebShop/logs/rl/*.log \
-  --out reports/baseline_profile.md
+  --out reports/baseline_profile.md \
+  --json-out reports/baseline_profile.json
 ```
+
+The markdown report is for reading. The JSON report is for later plotting,
+regression checks, and comparing optimization variants.
 
 On the AutoDL server, the expected project paths are:
 
@@ -76,4 +80,3 @@ This project should stay profiling-driven:
 3. Report both speed and score drift.
 4. Avoid modifying the async trainer loop until a standalone throughput
    prototype proves value.
-
