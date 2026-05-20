@@ -178,5 +178,6 @@
       "nonzero_score_cases": 22,
       "success_score_10_cases": 22
     }
-  }
+  },
+  "env_profile_events": {}
 }

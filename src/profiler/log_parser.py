@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import re
+import json
 from pathlib import Path
 from typing import Iterable
 
-from .schema import ResponseCase, StepMetrics
+from .schema import EnvProfileEvent, ResponseCase, StepMetrics
 
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
@@ -15,6 +16,7 @@ STEP_RE = re.compile(r"\bstep:(\d+)\b")
 SCORE_RE = re.compile(r"\[text\]\[score\]\s*(-?\d+(?:\.\d+)?)")
 ACTION_RE = re.compile(r"<action>(.*?)</action>", re.DOTALL)
 ACTION_TYPE_RE = re.compile(r"^\s*([a-zA-Z_ ]+)\[")
+PROFILE_MARKER = "[ARP_PROFILE]"
 
 
 def clean_line(line: str) -> str:
@@ -117,6 +119,25 @@ def parse_response_cases(path: Path) -> list[ResponseCase]:
         current.action_type = action_type(current.action)
         cases.append(current)
     return cases
+
+
+def parse_profile_events(path: Path) -> list[EnvProfileEvent]:
+    """Parse optional `[ARP_PROFILE] {...}` JSON lines emitted by env instrumentation."""
+
+    events: list[EnvProfileEvent] = []
+    with path.open("r", encoding="utf-8", errors="ignore") as f:
+        for raw in f:
+            line = clean_line(raw)
+            if PROFILE_MARKER not in line:
+                continue
+            payload_text = line.split(PROFILE_MARKER, 1)[1].strip()
+            try:
+                payload = json.loads(payload_text)
+            except json.JSONDecodeError:
+                continue
+            event_name = str(payload.get("event", "unknown"))
+            events.append(EnvProfileEvent(source_log=str(path), event=event_name, payload=payload))
+    return events
 
 
 def iter_existing_logs(patterns: Iterable[str]) -> list[Path]:

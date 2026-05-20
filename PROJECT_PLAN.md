@@ -43,6 +43,7 @@ Deliverable:
 
 ```text
 reports/baseline_profile.md
+reports/baseline_profile.json
 ```
 
 Decision after Phase 1:
@@ -52,6 +53,13 @@ Decision after Phase 1:
 - If search query repetition is high, test search cache.
 - If parser time is visible in live profiling, test lightweight action parsing.
 - If none of the above is significant, document negative findings.
+
+Optional instrumentation:
+
+- apply `patches/verl-agent-webshop-env-profile.patch` to a WarmGiGPO-WebShop
+  `third_party/verl-agent` checkout
+- run a small eval/RL job with `tee`
+- parse `[ARP_PROFILE]` events to split WebShop manager/worker timing
 
 ## Phase 2: Non-Invasive Optimizations
 
@@ -103,4 +111,3 @@ Out of scope for the first version:
 WarmGiGPO-WebShop remains the algorithm project. This repository can use it as a
 baseline source, but should not mix algorithm claims with systems optimization
 claims.
-

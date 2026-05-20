@@ -62,6 +62,24 @@ python scripts/analyze_verl_log_timing.py \
 The markdown report is for reading. The JSON report is for later plotting,
 regression checks, and comparing optimization variants.
 
+## Optional Env-Level Instrumentation
+
+Log-based profiling can only see trainer-level metrics. To profile WebShop
+environment calls, apply the optional patch to the WarmGiGPO-WebShop
+`third_party/verl-agent` checkout:
+
+```bash
+cd /root/autodl-fs/AgentRolloutProfiler
+bash scripts/apply_verl_agent_env_profile_patch.sh
+```
+
+Then run a small eval or RL job with `tee` logging. The log will contain
+`[ARP_PROFILE]` JSON lines for WebShop worker and manager events. Re-run
+`scripts/analyze_verl_log_timing.py` on that log to add environment-level timing
+tables to the report.
+
+See `docs/env_instrumentation.md` for details.
+
 On the AutoDL server, the expected project paths are:
 
 ```text

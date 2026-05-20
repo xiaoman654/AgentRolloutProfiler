@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -25,3 +26,11 @@ class ResponseCase:
     action: str = ""
     action_type: str = ""
 
+
+@dataclass
+class EnvProfileEvent:
+    """Structured event emitted by optional AgentRolloutProfiler instrumentation."""
+
+    source_log: str
+    event: str
+    payload: dict[str, Any] = field(default_factory=dict)

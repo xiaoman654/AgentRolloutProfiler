@@ -6,7 +6,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from statistics import mean
 
-from .schema import ResponseCase, StepMetrics
+from .schema import EnvProfileEvent, ResponseCase, StepMetrics
 
 
 TIMING_KEYS = [
@@ -152,7 +152,43 @@ def build_profile_summary(rows: list[StepMetrics], cases: list[ResponseCase]) ->
     }
 
 
-def build_markdown_report(rows: list[StepMetrics], cases: list[ResponseCase]) -> str:
+def _event_average(events: list[EnvProfileEvent], key: str) -> float | None:
+    values = []
+    for event in events:
+        value = event.payload.get(key)
+        if isinstance(value, (int, float)):
+            values.append(float(value))
+    return mean(values) if values else None
+
+
+def build_env_event_summary(events: list[EnvProfileEvent]) -> dict[str, dict[str, float | int | None]]:
+    grouped: dict[str, list[EnvProfileEvent]] = defaultdict(list)
+    for event in events:
+        grouped[event.event].append(event)
+
+    summary: dict[str, dict[str, float | int | None]] = {}
+    for event_name, event_rows in grouped.items():
+        summary[event_name] = {
+            "count": len(event_rows),
+            "avg_total_s": _event_average(event_rows, "total_s"),
+            "avg_projection_s": _event_average(event_rows, "projection_s"),
+            "avg_env_step_s": _event_average(event_rows, "env_step_s"),
+            "avg_format_obs_s": _event_average(event_rows, "format_obs_s"),
+            "avg_build_text_obs_s": _event_average(event_rows, "build_text_obs_s"),
+            "avg_worker_step_s": _event_average(event_rows, "worker_step_s"),
+            "avg_available_actions_s": _event_average(event_rows, "available_actions_s"),
+            "avg_reward_rewrite_s": _event_average(event_rows, "reward_rewrite_s"),
+            "avg_obs_chars": _event_average(event_rows, "obs_chars"),
+            "avg_text_obs_chars": _event_average(event_rows, "text_obs_chars"),
+        }
+    return summary
+
+
+def build_markdown_report(
+    rows: list[StepMetrics],
+    cases: list[ResponseCase],
+    env_events: list[EnvProfileEvent] | None = None,
+) -> str:
     lines: list[str] = []
     lines.append("# Baseline Rollout Profile")
     lines.append("")
@@ -239,6 +275,24 @@ def build_markdown_report(rows: list[StepMetrics], cases: list[ResponseCase]) ->
     lines.append(f"- nonzero-score cases: {score_summary['nonzero_score_cases']}")
     lines.append(f"- success-score-10 cases: {score_summary['success_score_10_cases']}")
     lines.append("")
+
+    env_events = env_events or []
+    if env_events:
+        lines.append("## Environment-Level Profile Events")
+        lines.append("")
+        lines.append("| Event | Count | avg total_s | avg env_step_s | avg projection_s | avg format_obs_s | avg build_text_obs_s | avg obs chars |")
+        lines.append("|---|---:|---:|---:|---:|---:|---:|---:|")
+        for event_name, event_summary in build_env_event_summary(env_events).items():
+            lines.append(
+                f"| `{event_name}` | {event_summary['count']} | "
+                f"{_fmt(event_summary.get('avg_total_s'))} | "
+                f"{_fmt(event_summary.get('avg_env_step_s'))} | "
+                f"{_fmt(event_summary.get('avg_projection_s'))} | "
+                f"{_fmt(event_summary.get('avg_format_obs_s'))} | "
+                f"{_fmt(event_summary.get('avg_build_text_obs_s'))} | "
+                f"{_fmt(event_summary.get('avg_obs_chars'))} |"
+            )
+        lines.append("")
 
     lines.append("## Phase 1 Decision Notes")
     lines.append("")

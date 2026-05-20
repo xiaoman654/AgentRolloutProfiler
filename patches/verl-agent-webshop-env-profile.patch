@@ -1,0 +1,162 @@
+diff --git a/agent_system/environments/env_manager.py b/agent_system/environments/env_manager.py
+--- a/agent_system/environments/env_manager.py
++++ b/agent_system/environments/env_manager.py
+@@ -14,12 +14,14 @@
+ # limitations under the License.
+ 
+ from typing import List, Tuple, Dict, Union, Any
+ from collections import defaultdict
++import json
+ import torch
+ import numpy as np
+ from functools import partial
+ import os
++import time
+ from agent_system.environments.prompts import *
+ from agent_system.environments.base import EnvironmentManagerBase, to_numpy
+ from agent_system.memory import SimpleMemory, SearchMemory
+ from omegaconf import OmegaConf
+@@ -388,40 +390,75 @@ class WebshopEnvironmentManager(EnvironmentManagerBase):
+         super().__init__(envs, projection_f, config)
+     
+     def reset(self, kwargs) -> Dict[str, Any]:
++        _arp_t0 = time.perf_counter()
+         obs, infos = self.envs.reset()
++        _arp_after_env_reset = time.perf_counter()
+         self.tasks = self.extract_task(obs)
++        _arp_after_extract_task = time.perf_counter()
+         obs = self.format_obs(obs)
++        _arp_after_format_obs = time.perf_counter()
+         # infos = [None] * self.envs.num_envs
+-        observations = {'text': self.build_text_obs(obs, infos, init=True), 
++        _arp_text = self.build_text_obs(obs, infos, init=True)
++        _arp_after_build_text_obs = time.perf_counter()
++        observations = {'text': _arp_text, 
+                         'image': None, 
+                         'anchor': obs.copy()
+                         }
+         self.pre_text_obs = obs
+         self.memory.reset(batch_size = len(infos))
++        print("[ARP_PROFILE] " + json.dumps({
++            "event": "manager_reset",
++            "env_reset_s": _arp_after_env_reset - _arp_t0,
++            "extract_task_s": _arp_after_extract_task - _arp_after_env_reset,
++            "format_obs_s": _arp_after_format_obs - _arp_after_extract_task,
++            "build_text_obs_s": _arp_after_build_text_obs - _arp_after_format_obs,
++            "total_s": time.perf_counter() - _arp_t0,
++            "batch_size": len(infos),
++            "obs_chars": sum(len(x) for x in obs),
++            "text_obs_chars": sum(len(x) for x in _arp_text),
++        }), flush=True)
+         return observations, infos
+ 
+     def step(self, text_actions: List[str]):
++        _arp_t0 = time.perf_counter()
+         actions, valids = self.projection_f(text_actions)
++        _arp_after_projection = time.perf_counter()
+         next_obs, rewards, dones, infos = self.envs.step(actions)
++        _arp_after_env_step = time.perf_counter()
+ 
+         next_obs = self.format_obs(next_obs)
++        _arp_after_format_obs = time.perf_counter()
+ 
+         self.memory.store({'text_obs': self.pre_text_obs, 'action': actions})
+         self.pre_text_obs = next_obs
+ 
++        _arp_text = self.build_text_obs(next_obs, infos)
++        _arp_after_build_text_obs = time.perf_counter()
+         next_observations = {
+-            'text': self.build_text_obs(next_obs, infos),
++            'text': _arp_text,
+             'image': None,
+             'anchor': next_obs.copy()
+         }
+         # add action_valid to infos
+         for i, info in enumerate(infos):
+             info['is_action_valid'] = to_numpy(valids[i])
+ 
+         rewards = to_numpy(rewards)
+         dones = to_numpy(dones)
+ 
++        print("[ARP_PROFILE] " + json.dumps({
++            "event": "manager_step",
++            "projection_s": _arp_after_projection - _arp_t0,
++            "env_step_s": _arp_after_env_step - _arp_after_projection,
++            "format_obs_s": _arp_after_format_obs - _arp_after_env_step,
++            "build_text_obs_s": _arp_after_build_text_obs - _arp_after_format_obs,
++            "total_s": time.perf_counter() - _arp_t0,
++            "batch_size": len(text_actions),
++            "obs_chars": sum(len(x) for x in next_obs),
++            "text_obs_chars": sum(len(x) for x in _arp_text),
++            "valid_ratio": float(sum(to_numpy(valids))) / max(len(valids), 1),
++        }), flush=True)
+         return next_observations, rewards, dones, infos
+ 
+     def extract_task(self, text_obs: List[str]):
+         tasks = []
+diff --git a/agent_system/environments/env_package/webshop/envs.py b/agent_system/environments/env_package/webshop/envs.py
+--- a/agent_system/environments/env_package/webshop/envs.py
++++ b/agent_system/environments/env_package/webshop/envs.py
+@@ -12,6 +12,8 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++import json
++import time
+ import ray
+ import gym
+ import numpy as np
+@@ -34,29 +36,53 @@ class WebshopWorker:
+         self.env = gym.make('WebAgentTextEnv-v0', **env_kwargs)
+     
+     def step(self, action):
+         """Execute a step in the environment"""
++        _arp_t0 = time.perf_counter()
+         obs, reward, done, info = self.env.step(action)
++        _arp_after_step = time.perf_counter()
+         info = dict(info or {})  # make a *copy* so we can mutate safely
+         info['available_actions'] = self.env.get_available_actions()
++        _arp_after_available = time.perf_counter()
+         info['task_score'] = reward
+ 
+         # Redefine reward. We only use rule-based reward - win for 10, lose for 0.
+         if done and reward == 1.0:
+             info['won'] = True
+             reward = 10.0
+         else:
+             info['won'] = False
+             reward = 0
+ 
++        print("[ARP_PROFILE] " + json.dumps({
++            "event": "worker_step",
++            "worker_step_s": _arp_after_step - _arp_t0,
++            "available_actions_s": _arp_after_available - _arp_after_step,
++            "reward_rewrite_s": time.perf_counter() - _arp_after_available,
++            "total_s": time.perf_counter() - _arp_t0,
++            "action_type": action.split("[", 1)[0].strip().lower() if isinstance(action, str) else "unknown",
++            "obs_chars": len(obs) if isinstance(obs, str) else 0,
++            "done": bool(done),
++            "won": bool(info.get("won", False)),
++        }), flush=True)
+         return obs, reward, done, info
+     
+     def reset(self, idx):
+         """Reset the environment with given session index"""
++        _arp_t0 = time.perf_counter()
+         obs, info = self.env.reset(session=idx)
++        _arp_after_reset = time.perf_counter()
+         info = dict(info or {})
+         info['available_actions'] = self.env.get_available_actions()
++        _arp_after_available = time.perf_counter()
+         info['won'] = False
++        print("[ARP_PROFILE] " + json.dumps({
++            "event": "worker_reset",
++            "worker_reset_s": _arp_after_reset - _arp_t0,
++            "available_actions_s": _arp_after_available - _arp_after_reset,
++            "total_s": time.perf_counter() - _arp_t0,
++            "obs_chars": len(obs) if isinstance(obs, str) else 0,
++        }), flush=True)
+         return obs, info
+     
+     def render(self, mode_for_render):
+         """Render the environment"""
