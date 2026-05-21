@@ -86,3 +86,8 @@ added, save only the final checkpoint, evaluate it immediately, and delete or
 export it after use.
 
 Detailed result: `reports/phase3_checkpoint_smoke_result.md`.
+
+The remaining unknown is whether `global_step_*/actor` can be evaluated
+directly by a val-only verl-agent run or must first be exported/converted into a
+HuggingFace-loadable model directory. Probe commands for this question are in
+`docs/server_phase3_checkpoint_eval_probe.md`.

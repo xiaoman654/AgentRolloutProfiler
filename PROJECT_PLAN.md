@@ -149,6 +149,7 @@ reports/phase3_plan.md
 reports/phase3_checkpoint_feasibility.md
 reports/phase3_checkpoint_smoke_template.md
 reports/phase3_checkpoint_smoke_result.md
+docs/server_phase3_checkpoint_eval_probe.md
 ```
 
 Scope:

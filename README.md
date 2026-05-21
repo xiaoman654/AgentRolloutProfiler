@@ -92,6 +92,12 @@ For the optional checkpoint smoke test, see:
 docs/server_phase3_checkpoint_smoke.md
 ```
 
+To test whether a saved actor checkpoint can be evaluated directly, see:
+
+```text
+docs/server_phase3_checkpoint_eval_probe.md
+```
+
 ## Optional Env-Level Instrumentation
 
 Log-based profiling can only see trainer-level metrics. To profile WebShop
