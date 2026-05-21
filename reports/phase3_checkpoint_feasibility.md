@@ -91,3 +91,18 @@ The remaining unknown is whether `global_step_*/actor` can be evaluated
 directly by a val-only verl-agent run or must first be exported/converted into a
 HuggingFace-loadable model directory. Probe commands for this question are in
 `docs/server_phase3_checkpoint_eval_probe.md`.
+
+## Eval Probe Result
+
+Directly using `global_step_2/actor` as `actor_rollout_ref.model.path` failed.
+The loader expected a HuggingFace-style weight file such as
+`pytorch_model.bin` or `model.safetensors`, but the actor checkpoint contains
+verl/FSDP files such as `model_world_size_1_rank_0.pt`.
+
+Therefore final policy quality comparison requires either:
+
+1. a verified export/convert path from verl/FSDP actor checkpoint to a
+   HuggingFace-loadable model directory, or
+2. a verified val-only resume path that evaluates the native trainer checkpoint.
+
+Detailed result: `reports/phase3_checkpoint_eval_probe_result.md`.

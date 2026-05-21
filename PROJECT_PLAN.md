@@ -150,6 +150,7 @@ reports/phase3_checkpoint_feasibility.md
 reports/phase3_checkpoint_smoke_template.md
 reports/phase3_checkpoint_smoke_result.md
 docs/server_phase3_checkpoint_eval_probe.md
+reports/phase3_checkpoint_eval_probe_result.md
 ```
 
 Scope:
@@ -164,6 +165,8 @@ Scope:
 - checkpoint saving has been verified, but the observed actor checkpoint is
   about 219G, so any quality comparison must save at most final checkpoints and
   write them to the data disk
+- direct eval of `global_step_*/actor` has been tested and fails because the
+  saved actor is a verl/FSDP checkpoint rather than a HuggingFace-loadable model
 
 Out of scope:
 

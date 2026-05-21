@@ -98,6 +98,10 @@ To test whether a saved actor checkpoint can be evaluated directly, see:
 docs/server_phase3_checkpoint_eval_probe.md
 ```
 
+Current probe result: direct eval of `global_step_*/actor` fails because the
+saved actor is a verl/FSDP checkpoint, not a HuggingFace-loadable model
+directory. See `reports/phase3_checkpoint_eval_probe_result.md`.
+
 ## Optional Env-Level Instrumentation
 
 Log-based profiling can only see trainer-level metrics. To profile WebShop
