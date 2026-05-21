@@ -129,7 +129,38 @@ Required evaluation:
 - rollout throughput change
 - success/task-score drift
 
-## Phase 3: Parallel Env-Stepping Prototype
+## Phase 3: Evaluation Scheduling Optimization
+
+Goal: test a low-risk training schedule optimization before attempting deeper
+rollout infrastructure changes.
+
+Rationale:
+
+- Phase 1 measured WebShop environment steps at tens of milliseconds.
+- Phase 2 measured eval64 wall-clock time at about 554s.
+- Using eval8 for frequent progress checks and eval64 only for final reporting
+  is estimated to reduce a 32-step exploratory run by about 23.6%.
+
+Deliverables:
+
+```text
+reports/phase3_eval_schedule_estimate.md
+reports/phase3_plan.md
+```
+
+Scope:
+
+- estimate wall-clock savings from measured eval runtimes
+- optionally run controlled schedule comparison jobs
+- keep final eval64 for score reporting
+
+Out of scope:
+
+- claiming policy-quality improvement from scheduling alone
+- changing GiGPO loss/reward/KL settings
+- modifying WebShop internals
+
+## Deferred: Parallel Env-Stepping Prototype
 
 Goal: build a standalone throughput prototype, not a full async trainer.
 

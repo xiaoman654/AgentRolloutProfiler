@@ -1,0 +1,33 @@
+{
+  "eval_times": {
+    "8": 243.945,
+    "16": 359.778,
+    "64": 554.172
+  },
+  "baseline": {
+    "total_steps": 32,
+    "normal_step_s": 21.5,
+    "train_time_s": 688.0,
+    "eval_size": 64,
+    "eval_freq": 8,
+    "eval_runs": 4,
+    "eval_time_s": 554.172,
+    "repeated_eval_time_s": 2216.688,
+    "final_eval_size": null,
+    "final_extra_time_s": 0.0,
+    "total_time_s": 2904.688
+  },
+  "candidate": {
+    "total_steps": 32,
+    "normal_step_s": 21.5,
+    "train_time_s": 688.0,
+    "eval_size": 8,
+    "eval_freq": 8,
+    "eval_runs": 4,
+    "eval_time_s": 243.945,
+    "repeated_eval_time_s": 975.78,
+    "final_eval_size": 64,
+    "final_extra_time_s": 554.172,
+    "total_time_s": 2217.952
+  }
+}

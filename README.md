@@ -77,6 +77,15 @@ python scripts/build_phase2_validation_report.py \
   --json-out reports/phase2_rollout_validation_profile.json
 ```
 
+For Phase 3 evaluation-schedule estimates:
+
+```bash
+python scripts/estimate_eval_schedule_savings.py \
+  --phase2-json reports/phase2_rollout_validation_profile.json \
+  --out reports/phase3_eval_schedule_estimate.md \
+  --json-out reports/phase3_eval_schedule_estimate.json
+```
+
 ## Optional Env-Level Instrumentation
 
 Log-based profiling can only see trainer-level metrics. To profile WebShop
