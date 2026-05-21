@@ -10,6 +10,8 @@ export HF_HUB_DISABLE_XET=1
 export HF_HUB_ENABLE_HF_TRANSFER=0
 export VLLM_ATTENTION_BACKEND=XFORMERS
 export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+export TMPDIR=/root/autodl-tmp/tmp
+export RAY_TMPDIR=/root/autodl-tmp/ray
 
 PROJECT_DIR=/root/autodl-fs/WarmGiGPO-WebShop
 ARP_DIR=/root/autodl-fs/AgentRolloutProfiler
@@ -18,10 +20,20 @@ CKPT_DIR="$PROJECT_DIR/checkpoints/verl_agent_webshop/checkpoint_smoke_tiny"
 LOG_DIR="$ARP_DIR/logs/phase3_checkpoint"
 
 mkdir -p "$LOG_DIR"
+mkdir -p "$TMPDIR" "$RAY_TMPDIR"
 
 echo "===== active jobs ====="
 ps aux | grep -E "main_ppo|TaskRunner|WorkerDict|actor_rollout|vllm|sft_lora.py|python" | grep -v grep || true
 nvidia-smi
+
+echo "===== stop stale ray and clear system tmp ray sessions ====="
+ray stop --force 2>/dev/null || true
+rm -rf /tmp/ray /tmp/*ray* 2>/dev/null || true
+
+echo "===== temp dirs ====="
+echo "TMPDIR=$TMPDIR"
+echo "RAY_TMPDIR=$RAY_TMPDIR"
+df -hT / /root/autodl-tmp
 
 echo "===== pre-check required paths ====="
 test -d "$PROJECT_DIR/third_party/verl-agent"

@@ -49,6 +49,8 @@ export HF_HUB_DISABLE_XET=1
 export HF_HUB_ENABLE_HF_TRANSFER=0
 export VLLM_ATTENTION_BACKEND=XFORMERS
 export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+export TMPDIR=/root/autodl-tmp/tmp
+export RAY_TMPDIR=/root/autodl-tmp/ray
 
 PROJECT_DIR=/root/autodl-fs/WarmGiGPO-WebShop
 ARP_DIR=/root/autodl-fs/AgentRolloutProfiler
@@ -56,6 +58,7 @@ MODEL_DIR=/root/.cache/huggingface/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snaps
 CKPT_DIR="$PROJECT_DIR/checkpoints/verl_agent_webshop/checkpoint_smoke_tiny"
 
 mkdir -p "$ARP_DIR/logs/phase3_checkpoint"
+mkdir -p "$TMPDIR" "$RAY_TMPDIR"
 
 cd "$PROJECT_DIR/third_party/verl-agent"
 
