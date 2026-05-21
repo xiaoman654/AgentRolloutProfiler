@@ -4,10 +4,10 @@ This report focuses on validation/testing cost, after Phase 1 found that WebShop
 
 ## Validation Cost Summary
 
-| Log | normal step_s | validation step_s | validation testing_s | non-testing validation_s | testing share | validation rows |
-|---|---:|---:|---:|---:|---:|---:|
-| `qwen15b_gigpo_medium_128_64_20260518_145752.log` | 24.758 | 445.853 | 421.827 | 24.026 | 0.946 | 4 |
-| `qwen15b_sft_verl_gigpo_medium_128_64_20260518_141425.log` | 21.539 | 353.343 | 332.452 | 20.891 | 0.941 | 4 |
+| Log | normal step_s | validation step_s | validation testing_s | wall real_s | non-testing validation_s | testing share | validation rows |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `qwen15b_gigpo_medium_128_64_20260518_145752.log` | 24.758 | 445.853 | 421.827 | N/A | 24.026 | 0.946 | 5 |
+| `qwen15b_sft_verl_gigpo_medium_128_64_20260518_141425.log` | 21.539 | 353.343 | 332.452 | N/A | 20.891 | 0.941 | 5 |
 
 ## Generation and Length Signals
 
@@ -33,6 +33,7 @@ This report focuses on validation/testing cost, after Phase 1 found that WebShop
 ## Phase 2 Reading Guide
 
 - If `testing share` stays near 1.0, optimization should target validation rollout volume, generation throughput, or evaluation frequency.
+- Eval-only logs may not contain `timing_s/testing`; in that case `wall real_s` from `/usr/bin/time -p` is the preferred latency signal.
 - If `manager_step_s` and `worker_step_s` remain below 0.1s, WebShop environment stepping is still not the priority.
 - If latency scales roughly linearly with eval size, validation batch size/frequency is a direct speed-quality tradeoff.
 - If score is unstable at small eval sizes, use small eval only for profiling and keep larger eval for final reporting.

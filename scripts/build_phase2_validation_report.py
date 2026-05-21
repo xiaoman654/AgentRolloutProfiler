@@ -16,9 +16,15 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from profiler.log_parser import iter_existing_logs, parse_profile_events, parse_response_cases, parse_step_metrics
+from profiler.log_parser import (
+    iter_existing_logs,
+    parse_profile_events,
+    parse_response_cases,
+    parse_step_metrics,
+    parse_time_p_runtime,
+)
 from profiler.report import build_env_event_summary, search_query_stats
-from profiler.schema import EnvProfileEvent, ResponseCase, StepMetrics
+from profiler.schema import EnvProfileEvent, LogRuntime, ResponseCase, StepMetrics
 
 
 def parse_args() -> argparse.Namespace:
@@ -43,8 +49,16 @@ def short_log_name(log: str) -> str:
 
 
 def split_rows(rows: list[StepMetrics]) -> tuple[list[StepMetrics], list[StepMetrics]]:
-    validation_rows = [row for row in rows if "timing_s/testing" in row.metrics]
-    normal_rows = [row for row in rows if "timing_s/testing" not in row.metrics and "timing_s/step" in row.metrics]
+    validation_rows = [
+        row
+        for row in rows
+        if "timing_s/testing" in row.metrics or any(key.startswith("val/") for key in row.metrics)
+    ]
+    normal_rows = [
+        row
+        for row in rows
+        if row not in validation_rows and "timing_s/step" in row.metrics
+    ]
     return normal_rows, validation_rows
 
 
@@ -86,10 +100,16 @@ def summarize_log(
     rows: list[StepMetrics],
     cases: list[ResponseCase],
     events: list[EnvProfileEvent],
+    runtime: LogRuntime | None,
 ) -> dict[str, object]:
     normal_rows, validation_rows = split_rows(rows)
     validation_step_s = avg_metric(validation_rows, "timing_s/step")
     testing_s = avg_metric(validation_rows, "timing_s/testing")
+    runtime_real_s = runtime.real_s if runtime else None
+    if validation_step_s is None:
+        validation_step_s = runtime_real_s
+    if testing_s is None:
+        testing_s = runtime_real_s
     normal_step_s = avg_metric(normal_rows, "timing_s/step")
     validation_non_testing_s = None
     if validation_step_s is not None and testing_s is not None:
@@ -114,6 +134,9 @@ def summarize_log(
         "avg_validation_testing_s": testing_s,
         "avg_validation_non_testing_s": validation_non_testing_s,
         "validation_testing_share": validation_testing_share,
+        "runtime_real_s": runtime_real_s,
+        "runtime_user_s": runtime.user_s if runtime else None,
+        "runtime_sys_s": runtime.sys_s if runtime else None,
         "avg_gen_s_normal": avg_metric(normal_rows, "timing_s/gen"),
         "avg_gen_s_validation": avg_metric(validation_rows, "timing_s/gen"),
         "avg_response_length": avg_metric(rows, "response_length/mean"),
@@ -134,10 +157,12 @@ def build_summary(
     rows: list[StepMetrics],
     cases: list[ResponseCase],
     events: list[EnvProfileEvent],
+    runtimes: list[LogRuntime],
 ) -> dict[str, object]:
     rows_by_log = grouped_by_log(rows)
     cases_by_log = grouped_by_log(cases)
     events_by_log = grouped_by_log(events)
+    runtimes_by_log = {runtime.source_log: runtime for runtime in runtimes}
     per_log = {}
     for log in logs:
         key = str(log)
@@ -146,6 +171,7 @@ def build_summary(
             rows_by_log.get(key, []),
             cases_by_log.get(key, []),
             events_by_log.get(key, []),
+            runtimes_by_log.get(key),
         )
     return {"logs": per_log}
 
@@ -158,14 +184,15 @@ def build_markdown(summary: dict[str, object]) -> str:
     lines.append("")
     lines.append("## Validation Cost Summary")
     lines.append("")
-    lines.append("| Log | normal step_s | validation step_s | validation testing_s | non-testing validation_s | testing share | validation rows |")
-    lines.append("|---|---:|---:|---:|---:|---:|---:|")
+    lines.append("| Log | normal step_s | validation step_s | validation testing_s | wall real_s | non-testing validation_s | testing share | validation rows |")
+    lines.append("|---|---:|---:|---:|---:|---:|---:|---:|")
     for log_summary in summary["logs"].values():
         lines.append(
             f"| `{log_summary['short_name']}` | "
             f"{fmt(log_summary['avg_normal_step_s'])} | "
             f"{fmt(log_summary['avg_validation_step_s'])} | "
             f"{fmt(log_summary['avg_validation_testing_s'])} | "
+            f"{fmt(log_summary['runtime_real_s'])} | "
             f"{fmt(log_summary['avg_validation_non_testing_s'])} | "
             f"{fmt(log_summary['validation_testing_share'])} | "
             f"{log_summary['validation_rows']} |"
@@ -220,6 +247,7 @@ def build_markdown(summary: dict[str, object]) -> str:
     lines.append("## Phase 2 Reading Guide")
     lines.append("")
     lines.append("- If `testing share` stays near 1.0, optimization should target validation rollout volume, generation throughput, or evaluation frequency.")
+    lines.append("- Eval-only logs may not contain `timing_s/testing`; in that case `wall real_s` from `/usr/bin/time -p` is the preferred latency signal.")
     lines.append("- If `manager_step_s` and `worker_step_s` remain below 0.1s, WebShop environment stepping is still not the priority.")
     lines.append("- If latency scales roughly linearly with eval size, validation batch size/frequency is a direct speed-quality tradeoff.")
     lines.append("- If score is unstable at small eval sizes, use small eval only for profiling and keep larger eval for final reporting.")
@@ -236,12 +264,14 @@ def main() -> None:
     rows: list[StepMetrics] = []
     cases: list[ResponseCase] = []
     events: list[EnvProfileEvent] = []
+    runtimes: list[LogRuntime] = []
     for log in logs:
         rows.extend(parse_step_metrics(log))
         cases.extend(parse_response_cases(log))
         events.extend(parse_profile_events(log))
+        runtimes.append(parse_time_p_runtime(log))
 
-    summary = build_summary(logs, rows, cases, events)
+    summary = build_summary(logs, rows, cases, events, runtimes)
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(build_markdown(summary), encoding="utf-8")

@@ -34,3 +34,13 @@ class EnvProfileEvent:
     source_log: str
     event: str
     payload: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class LogRuntime:
+    """Wall-clock runtime parsed from `/usr/bin/time -p` output."""
+
+    source_log: str
+    real_s: float | None = None
+    user_s: float | None = None
+    sys_s: float | None = None

@@ -60,15 +60,15 @@ cd /root/autodl-fs/WarmGiGPO-WebShop
 mkdir -p /root/autodl-fs/AgentRolloutProfiler/logs/phase2_validation
 
 echo "===== eval8 ====="
-bash scripts/eval/run_qwen15b_zero_shot_eval8.sh \
+(/usr/bin/time -p bash scripts/eval/run_qwen15b_zero_shot_eval8.sh) \
   2>&1 | tee /root/autodl-fs/AgentRolloutProfiler/logs/phase2_validation/qwen15b_zero_shot_eval8_$(date +%Y%m%d_%H%M%S).log
 
 echo "===== eval16 ====="
-bash scripts/eval/run_qwen15b_zero_shot_eval16.sh \
+(/usr/bin/time -p bash scripts/eval/run_qwen15b_zero_shot_eval16.sh) \
   2>&1 | tee /root/autodl-fs/AgentRolloutProfiler/logs/phase2_validation/qwen15b_zero_shot_eval16_$(date +%Y%m%d_%H%M%S).log
 
 echo "===== eval64 ====="
-bash scripts/eval/run_qwen15b_zero_shot_eval64.sh \
+(/usr/bin/time -p bash scripts/eval/run_qwen15b_zero_shot_eval64.sh) \
   2>&1 | tee /root/autodl-fs/AgentRolloutProfiler/logs/phase2_validation/qwen15b_zero_shot_eval64_$(date +%Y%m%d_%H%M%S).log
 ```
 
@@ -106,4 +106,3 @@ git add reports/phase2_rollout_validation_profile.md \
 git commit -m "Add phase 2 validation scaling profile" || true
 git push origin main
 ```
-

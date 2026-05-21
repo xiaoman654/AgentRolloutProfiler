@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Iterable
 
-from .schema import EnvProfileEvent, ResponseCase, StepMetrics
+from .schema import EnvProfileEvent, LogRuntime, ResponseCase, StepMetrics
 
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
@@ -17,6 +17,7 @@ SCORE_RE = re.compile(r"\[text\]\[score\]\s*(-?\d+(?:\.\d+)?)")
 ACTION_RE = re.compile(r"<action>(.*?)</action>", re.DOTALL)
 ACTION_TYPE_RE = re.compile(r"^\s*([a-zA-Z_ ]+)\[")
 PROFILE_MARKER = "[ARP_PROFILE]"
+TIME_P_RE = re.compile(r"^(real|user|sys)\s+(\d+(?:\.\d+)?)\s*$")
 
 
 def clean_line(line: str) -> str:
@@ -138,6 +139,24 @@ def parse_profile_events(path: Path) -> list[EnvProfileEvent]:
             event_name = str(payload.get("event", "unknown"))
             events.append(EnvProfileEvent(source_log=str(path), event=event_name, payload=payload))
     return events
+
+
+def parse_time_p_runtime(path: Path) -> LogRuntime:
+    """Parse `/usr/bin/time -p` output if it was captured by tee."""
+
+    values: dict[str, float] = {}
+    with path.open("r", encoding="utf-8", errors="ignore") as f:
+        for raw in f:
+            line = clean_line(raw).strip()
+            match = TIME_P_RE.match(line)
+            if match:
+                values[match.group(1)] = float(match.group(2))
+    return LogRuntime(
+        source_log=str(path),
+        real_s=values.get("real"),
+        user_s=values.get("user"),
+        sys_s=values.get("sys"),
+    )
 
 
 def iter_existing_logs(patterns: Iterable[str]) -> list[Path]:

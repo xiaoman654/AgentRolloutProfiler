@@ -7,6 +7,12 @@ PATCH_FILE="$PROJECT_DIR/patches/verl-agent-webshop-env-profile.patch"
 
 cd "$VERL_AGENT_DIR"
 
+if grep -q "ARP_PROFILE" agent_system/environments/env_manager.py \
+  && grep -q "ARP_PROFILE" agent_system/environments/env_package/webshop/envs.py; then
+  echo "AgentRolloutProfiler env-profile patch already applied."
+  exit 0
+fi
+
 if git apply --reverse --check "$PATCH_FILE" >/dev/null 2>&1; then
   echo "AgentRolloutProfiler env-profile patch already applied."
   exit 0
@@ -15,4 +21,3 @@ fi
 git apply --check "$PATCH_FILE"
 git apply "$PATCH_FILE"
 echo "Applied AgentRolloutProfiler env-profile patch to $VERL_AGENT_DIR"
-
