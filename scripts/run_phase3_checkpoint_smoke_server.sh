@@ -1,45 +1,6 @@
-# Server Phase 3 Checkpoint Smoke Commands
+#!/usr/bin/env bash
+set -euo pipefail
 
-These commands verify whether verl-agent can save an RL actor checkpoint in the
-WarmGiGPO-WebShop setup. This is a prerequisite for comparing final policy
-quality under different validation schedules.
-
-Expected paths:
-
-```text
-/root/autodl-fs/AgentRolloutProfiler
-/root/autodl-fs/WarmGiGPO-WebShop
-```
-
-## 1. Sync and Pre-Check
-
-```bash
-cd /root/autodl-fs/AgentRolloutProfiler
-git pull --rebase origin main
-
-echo "===== active jobs ====="
-ps aux | grep -E "main_ppo|TaskRunner|WorkerDict|actor_rollout|vllm|sft_lora.py|python" | grep -v grep || true
-nvidia-smi
-```
-
-## 2. Run Tiny Checkpoint Smoke
-
-Prefer the server helper script to avoid truncating the long trainer command
-when copying from Markdown:
-
-```bash
-cd /root/autodl-fs/AgentRolloutProfiler
-bash scripts/run_phase3_checkpoint_smoke_server.sh
-```
-
-The script is a self-contained version of the existing tiny smoke run with
-checkpoint saving enabled. It uses an explicit `python -m
-verl.trainer.main_ppo` command because the existing WarmGiGPO-WebShop smoke
-script does not forward arbitrary CLI overrides.
-
-The full command inside the helper script is:
-
-```bash
 source /root/miniconda3/etc/profile.d/conda.sh
 conda activate verl-agent-webshop
 source /etc/network_turbo || true
@@ -54,8 +15,19 @@ PROJECT_DIR=/root/autodl-fs/WarmGiGPO-WebShop
 ARP_DIR=/root/autodl-fs/AgentRolloutProfiler
 MODEL_DIR=/root/.cache/huggingface/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306
 CKPT_DIR="$PROJECT_DIR/checkpoints/verl_agent_webshop/checkpoint_smoke_tiny"
+LOG_DIR="$ARP_DIR/logs/phase3_checkpoint"
 
-mkdir -p "$ARP_DIR/logs/phase3_checkpoint"
+mkdir -p "$LOG_DIR"
+
+echo "===== active jobs ====="
+ps aux | grep -E "main_ppo|TaskRunner|WorkerDict|actor_rollout|vllm|sft_lora.py|python" | grep -v grep || true
+nvidia-smi
+
+echo "===== pre-check required paths ====="
+test -d "$PROJECT_DIR/third_party/verl-agent"
+test -d "$MODEL_DIR"
+test -f /root/data/verl-agent/text_tiny/train.parquet
+test -f /root/data/verl-agent/text_tiny/test.parquet
 
 cd "$PROJECT_DIR/third_party/verl-agent"
 
@@ -121,51 +93,19 @@ echo "===== run checkpoint smoke ====="
   trainer.test_freq=1000 \
   trainer.total_epochs=1 \
   trainer.val_before_train=False; } \
-  2>&1 | tee "$ARP_DIR/logs/phase3_checkpoint/checkpoint_smoke_tiny_$(date +%Y%m%d_%H%M%S).log"
-```
-
-## 3. Inspect Checkpoint Structure
-
-```bash
-cd /root/autodl-fs/WarmGiGPO-WebShop
-
-CKPT_DIR=/root/autodl-fs/WarmGiGPO-WebShop/checkpoints/verl_agent_webshop/checkpoint_smoke_tiny
+  2>&1 | tee "$LOG_DIR/checkpoint_smoke_tiny_$(date +%Y%m%d_%H%M%S).log"
 
 echo "===== checkpoint tree ====="
-find "$CKPT_DIR" -maxdepth 4 -type f | sort | head -200
+find "$CKPT_DIR" -maxdepth 4 -type f | sort | head -200 || true
 
 echo "===== checkpoint dirs ====="
-find "$CKPT_DIR" -maxdepth 4 -type d | sort
+find "$CKPT_DIR" -maxdepth 4 -type d | sort || true
 
 echo "===== latest tracker ====="
 cat "$CKPT_DIR/latest_checkpointed_iteration.txt" || true
 
 echo "===== actor dir size ====="
 du -sh "$CKPT_DIR"/global_step_*/actor 2>/dev/null || true
-```
 
-## 4. Check Log Markers
-
-```bash
-cd /root/autodl-fs/AgentRolloutProfiler
-
-latest=$(ls -t logs/phase3_checkpoint/checkpoint_smoke_tiny_*.log | head -1)
-echo "$latest"
-
-grep -E "save_checkpoint|local_global_step_folder|Saving|Saved checkpoint|global_step_|Error|Traceback|CUDA out of memory|RuntimeError|real|user|sys" \
-  "$latest" | tail -120
-```
-
-## 5. Interpretation
-
-The smoke test passes if:
-
-- `latest_checkpointed_iteration.txt` exists
-- at least one `global_step_*` directory exists
-- `global_step_*/actor` exists and contains checkpoint files
-- the log has no traceback or OOM
-
-The smoke test does not prove that the actor checkpoint is directly
-HuggingFace-loadable. It only proves that verl-agent checkpoint saving works.
-The next question is whether val-only resume or an export step can evaluate this
-actor checkpoint.
+echo "===== latest log ====="
+ls -t "$LOG_DIR"/checkpoint_smoke_tiny_*.log | head -1
