@@ -45,6 +45,14 @@ cat reports/phase3_eval_schedule_estimate.md
 Run these only when a full comparison is needed. They reuse the WarmGiGPO-WebShop
 training script and only change the validation data size and experiment name.
 
+Both runs keep `env.seed=0` from the underlying script. Do not change model,
+training data, reward, KL, or rollout hyperparameters between runs.
+
+Important: these commands validate wall-clock scheduling cost. To compare final
+model quality, the RL training run must save or expose the final trained policy,
+and the final eval64 must load that policy. If no final RL checkpoint is saved,
+do not interpret the standalone final eval64 as candidate-model quality.
+
 Baseline schedule:
 
 ```bash
@@ -71,11 +79,13 @@ VAL_FILE=/root/data/verl-agent/text_eval8/test.parquet \
   2>&1 | tee /root/autodl-fs/AgentRolloutProfiler/logs/phase3_schedule/candidate_eval8_freq8_$(date +%Y%m%d_%H%M%S).log
 ```
 
-Final eval64 for candidate:
+Final eval64 for candidate, only if `MODEL_DIR` is pointed at the saved
+candidate RL checkpoint:
 
 ```bash
 cd /root/autodl-fs/WarmGiGPO-WebShop
 
+MODEL_DIR=/path/to/candidate/final/checkpoint \
 { time bash scripts/eval/run_qwen15b_sft_verl_full_eval64.sh; } \
   2>&1 | tee /root/autodl-fs/AgentRolloutProfiler/logs/phase3_schedule/candidate_final_eval64_$(date +%Y%m%d_%H%M%S).log
 ```
@@ -94,3 +104,10 @@ grep -A12 "Validation Cost Summary" reports/phase3_schedule_profile.md
 grep -A12 "Score and Case Counts" reports/phase3_schedule_profile.md
 ```
 
+## 5. Interpretation Rules
+
+- If only schedule logs are available, report wall-clock savings only.
+- If final checkpoints are evaluated on the same eval64 set, report both
+  wall-clock savings and final score drift.
+- Do not compare baseline eval64-in-training scores with candidate eval8 scores
+  as policy-quality evidence; they use different validation sets.

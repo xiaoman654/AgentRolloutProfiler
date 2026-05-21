@@ -153,10 +153,13 @@ Scope:
 - estimate wall-clock savings from measured eval runtimes
 - optionally run controlled schedule comparison jobs
 - keep final eval64 for score reporting
+- compare final policy quality only when both schedules expose comparable final
+  checkpoints evaluated on the same eval64 set
 
 Out of scope:
 
 - claiming policy-quality improvement from scheduling alone
+- claiming unchanged model quality from mismatched eval sets or unsaved policies
 - changing GiGPO loss/reward/KL settings
 - modifying WebShop internals
 

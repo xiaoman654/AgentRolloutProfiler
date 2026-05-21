@@ -40,13 +40,22 @@ hyperparameters:
 1. Baseline schedule: `VAL_FILE=text_eval64/test.parquet`, `trainer.test_freq=8`
 2. Candidate schedule: `VAL_FILE=text_eval8/test.parquet`, `trainer.test_freq=8`
 
-After the candidate run, run a separate eval64 for final score reporting.
+The seed must be fixed across both runs. In the current WarmGiGPO-WebShop
+scripts, `env.seed=0` is already passed through the CLI overrides; keep every
+other setting identical unless it is the validation schedule being tested.
+
+Important quality guardrail: a separate eval64 only proves final model quality
+if it evaluates the checkpoint produced by the candidate RL run. If the training
+script does not save or expose the final RL policy, do not treat a standalone
+eval script as candidate-model evaluation. In that case, this experiment only
+validates wall-clock scheduling cost, not final policy equivalence.
 
 Compare:
 
 - total wall-clock time
 - number of validation events
-- final eval64 success rate and task score
+- final eval64 success rate and task score, only when evaluating the actual
+  trained checkpoint
 - whether eval8 progress signal is directionally useful
 
 ## Non-Goals
@@ -54,7 +63,8 @@ Compare:
 - Do not change GiGPO loss, reward, or KL settings.
 - Do not change WebShop internals.
 - Do not claim score improvement from scheduling alone.
+- Do not claim unchanged model quality unless both schedules are evaluated on
+  comparable final checkpoints with the same eval64 set.
 
 The expected benefit is wall-clock reduction during exploratory training, not a
 better policy.
-
