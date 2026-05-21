@@ -146,6 +146,7 @@ Deliverables:
 ```text
 reports/phase3_eval_schedule_estimate.md
 reports/phase3_plan.md
+reports/phase3_checkpoint_feasibility.md
 ```
 
 Scope:
@@ -155,6 +156,8 @@ Scope:
 - keep final eval64 for score reporting
 - compare final policy quality only when both schedules expose comparable final
   checkpoints evaluated on the same eval64 set
+- treat current WarmGiGPO-WebShop scripts as wall-clock-only unless checkpoint
+  saving/evaluation is verified, because they set `trainer.save_freq=-1`
 
 Out of scope:
 

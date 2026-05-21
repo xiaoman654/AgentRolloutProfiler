@@ -50,6 +50,15 @@ script does not save or expose the final RL policy, do not treat a standalone
 eval script as candidate-model evaluation. In that case, this experiment only
 validates wall-clock scheduling cost, not final policy equivalence.
 
+Checkpoint feasibility check:
+
+- verl-agent supports PPO actor checkpoints under
+  `checkpoints/${project}/${experiment}/global_step_${step}/actor`.
+- the current WarmGiGPO-WebShop RL scripts set `trainer.save_freq=-1`, so they
+  do not save final RL actor checkpoints by default.
+- see `reports/phase3_checkpoint_feasibility.md` before making final-score
+  claims from Phase 3.
+
 Compare:
 
 - total wall-clock time

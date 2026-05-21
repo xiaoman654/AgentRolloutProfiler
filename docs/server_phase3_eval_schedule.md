@@ -53,6 +53,11 @@ model quality, the RL training run must save or expose the final trained policy,
 and the final eval64 must load that policy. If no final RL checkpoint is saved,
 do not interpret the standalone final eval64 as candidate-model quality.
 
+Current caveat: the WarmGiGPO-WebShop RL scripts set `trainer.save_freq=-1`, so
+they do not save final RL actor checkpoints by default. The commands below are
+therefore wall-clock schedule comparisons unless checkpoint saving/evaluation is
+explicitly enabled and verified.
+
 Baseline schedule:
 
 ```bash
