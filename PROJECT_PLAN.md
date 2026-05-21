@@ -196,3 +196,23 @@ Out of scope for the first version:
 WarmGiGPO-WebShop remains the algorithm project. This repository can use it as a
 baseline source, but should not mix algorithm claims with systems optimization
 claims.
+
+## Final Deliverables
+
+The current project stage is complete as a profiling and systems-diagnosis
+study.
+
+Final summary files:
+
+```text
+reports/PROJECT_REPORT.md
+reports/RESUME_SUMMARY.md
+```
+
+Final defensible claim:
+
+> Built a profiling pipeline for verl-agent + WebShop Agentic RL, ruled out
+> environment stepping as the bottleneck, quantified validation scaling, and
+> proposed an evaluation-scheduling optimization estimated to reduce exploratory
+> training wall-clock by about 23.6%, with checkpoint feasibility and evaluation
+> boundaries verified.

@@ -5,6 +5,11 @@ agent rollouts. The first target environment is WebShop, motivated by the
 WarmGiGPO-WebShop experiments where validation and environment interaction
 dominated wall-clock time.
 
+Final project summary:
+
+- full report: `reports/PROJECT_REPORT.md`
+- resume summary: `reports/RESUME_SUMMARY.md`
+
 This repository is intentionally separate from the algorithm project:
 
 - WarmGiGPO-WebShop: SFT warm-start and GiGPO post-training study.
@@ -33,6 +38,13 @@ environment steps at roughly 40-50 ms, while trainer logs show normal steps in
 the 20s range and validation steps in the 350-450s range. The immediate
 bottleneck is therefore not WebShop environment stepping; the next focus is
 rollout generation and validation profiling. See `reports/phase1_decision.md`.
+
+Final finding: the project rules out WebShop environment stepping as the main
+bottleneck and reframes the practical optimization as validation scheduling.
+Using eval8 for frequent checks plus final eval64 is estimated to reduce a
+32-step exploratory run by about 23.6% wall-clock. Checkpoint saving was
+verified, but direct eval of saved verl/FSDP actor checkpoints is not supported
+without export or native resume evaluation.
 
 ## Initial Layout
 
