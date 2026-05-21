@@ -147,6 +147,7 @@ Deliverables:
 reports/phase3_eval_schedule_estimate.md
 reports/phase3_plan.md
 reports/phase3_checkpoint_feasibility.md
+reports/phase3_checkpoint_smoke_template.md
 ```
 
 Scope:

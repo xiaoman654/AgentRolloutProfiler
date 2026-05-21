@@ -65,3 +65,4 @@ experiment:
 - verify that `global_step_* / actor` is created
 - verify whether val-only resume or HF export can evaluate that exact actor
 
+Concrete server commands are in `docs/server_phase3_checkpoint_smoke.md`.

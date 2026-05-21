@@ -86,6 +86,12 @@ python scripts/estimate_eval_schedule_savings.py \
   --json-out reports/phase3_eval_schedule_estimate.json
 ```
 
+For the optional checkpoint smoke test, see:
+
+```text
+docs/server_phase3_checkpoint_smoke.md
+```
+
 ## Optional Env-Level Instrumentation
 
 Log-based profiling can only see trainer-level metrics. To profile WebShop
