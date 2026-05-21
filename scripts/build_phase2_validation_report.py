@@ -164,16 +164,28 @@ def build_summary(
     events_by_log = grouped_by_log(events)
     runtimes_by_log = {runtime.source_log: runtime for runtime in runtimes}
     per_log = {}
+    skipped_logs = []
     for log in logs:
         key = str(log)
-        per_log[key] = summarize_log(
+        log_summary = summarize_log(
             key,
             rows_by_log.get(key, []),
             cases_by_log.get(key, []),
             events_by_log.get(key, []),
             runtimes_by_log.get(key),
         )
-    return {"logs": per_log}
+        has_runtime = log_summary["runtime_real_s"] is not None
+        has_content = (
+            log_summary["step_rows"] > 0
+            or log_summary["cases"]["parsed_cases"] > 0
+            or bool(log_summary["env_profile_events"])
+            or has_runtime
+        )
+        if has_content:
+            per_log[key] = log_summary
+        else:
+            skipped_logs.append(key)
+    return {"logs": per_log, "skipped_empty_logs": skipped_logs}
 
 
 def build_markdown(summary: dict[str, object]) -> str:
@@ -182,6 +194,10 @@ def build_markdown(summary: dict[str, object]) -> str:
     lines.append("")
     lines.append("This report focuses on validation/testing cost, after Phase 1 found that WebShop environment stepping is not the dominant bottleneck.")
     lines.append("")
+    skipped = summary.get("skipped_empty_logs", [])
+    if skipped:
+        lines.append(f"Skipped {len(skipped)} empty log(s) with no parsed metrics, cases, environment events, or runtime.")
+        lines.append("")
     lines.append("## Validation Cost Summary")
     lines.append("")
     lines.append("| Log | normal step_s | validation step_s | validation testing_s | wall real_s | non-testing validation_s | testing share | validation rows |")

@@ -1,37 +1,5 @@
 {
   "logs": {
-    "logs/phase2_validation_timed/qwen15b_zero_shot_eval16_timed_20260521_103026.log": {
-      "short_name": "qwen15b_zero_shot_eval16_timed_20260521_103026.log",
-      "step_rows": 0,
-      "normal_rows": 0,
-      "validation_rows": 0,
-      "avg_normal_step_s": null,
-      "avg_validation_step_s": null,
-      "avg_validation_testing_s": null,
-      "avg_validation_non_testing_s": null,
-      "validation_testing_share": null,
-      "runtime_real_s": null,
-      "runtime_user_s": null,
-      "runtime_sys_s": null,
-      "avg_gen_s_normal": null,
-      "avg_gen_s_validation": null,
-      "avg_response_length": null,
-      "avg_prompt_length": null,
-      "cases": {
-        "parsed_cases": 0,
-        "scored_cases": 0,
-        "nonzero_cases": 0,
-        "success_score_10_cases": 0,
-        "avg_score": null
-      },
-      "action_counts": {},
-      "search_query_total": 0,
-      "search_query_unique": 0,
-      "search_query_repeat_rate": 0.0,
-      "env_profile_events": {},
-      "avg_manager_step_s": null,
-      "avg_worker_step_s": null
-    },
     "logs/phase2_validation_timed/qwen15b_zero_shot_eval16_timed_20260521_103501.log": {
       "short_name": "qwen15b_zero_shot_eval16_timed_20260521_103501.log",
       "step_rows": 2,
@@ -120,38 +88,6 @@
       },
       "avg_manager_step_s": 0.03963911612203882,
       "avg_worker_step_s": 0.03797221103214596
-    },
-    "logs/phase2_validation_timed/qwen15b_zero_shot_eval64_timed_20260521_103026.log": {
-      "short_name": "qwen15b_zero_shot_eval64_timed_20260521_103026.log",
-      "step_rows": 0,
-      "normal_rows": 0,
-      "validation_rows": 0,
-      "avg_normal_step_s": null,
-      "avg_validation_step_s": null,
-      "avg_validation_testing_s": null,
-      "avg_validation_non_testing_s": null,
-      "validation_testing_share": null,
-      "runtime_real_s": null,
-      "runtime_user_s": null,
-      "runtime_sys_s": null,
-      "avg_gen_s_normal": null,
-      "avg_gen_s_validation": null,
-      "avg_response_length": null,
-      "avg_prompt_length": null,
-      "cases": {
-        "parsed_cases": 0,
-        "scored_cases": 0,
-        "nonzero_cases": 0,
-        "success_score_10_cases": 0,
-        "avg_score": null
-      },
-      "action_counts": {},
-      "search_query_total": 0,
-      "search_query_unique": 0,
-      "search_query_repeat_rate": 0.0,
-      "env_profile_events": {},
-      "avg_manager_step_s": null,
-      "avg_worker_step_s": null
     },
     "logs/phase2_validation_timed/qwen15b_zero_shot_eval64_timed_20260521_104100.log": {
       "short_name": "qwen15b_zero_shot_eval64_timed_20260521_104100.log",
@@ -242,38 +178,6 @@
       "avg_manager_step_s": 0.0366155151008266,
       "avg_worker_step_s": 0.0350581180645674
     },
-    "logs/phase2_validation_timed/qwen15b_zero_shot_eval8_timed_20260521_103026.log": {
-      "short_name": "qwen15b_zero_shot_eval8_timed_20260521_103026.log",
-      "step_rows": 0,
-      "normal_rows": 0,
-      "validation_rows": 0,
-      "avg_normal_step_s": null,
-      "avg_validation_step_s": null,
-      "avg_validation_testing_s": null,
-      "avg_validation_non_testing_s": null,
-      "validation_testing_share": null,
-      "runtime_real_s": null,
-      "runtime_user_s": null,
-      "runtime_sys_s": null,
-      "avg_gen_s_normal": null,
-      "avg_gen_s_validation": null,
-      "avg_response_length": null,
-      "avg_prompt_length": null,
-      "cases": {
-        "parsed_cases": 0,
-        "scored_cases": 0,
-        "nonzero_cases": 0,
-        "success_score_10_cases": 0,
-        "avg_score": null
-      },
-      "action_counts": {},
-      "search_query_total": 0,
-      "search_query_unique": 0,
-      "search_query_repeat_rate": 0.0,
-      "env_profile_events": {},
-      "avg_manager_step_s": null,
-      "avg_worker_step_s": null
-    },
     "logs/phase2_validation_timed/qwen15b_zero_shot_eval8_timed_20260521_103057.log": {
       "short_name": "qwen15b_zero_shot_eval8_timed_20260521_103057.log",
       "step_rows": 2,
@@ -363,5 +267,10 @@
       "avg_manager_step_s": 0.04722041852143874,
       "avg_worker_step_s": 0.045533757443618345
     }
-  }
+  },
+  "skipped_empty_logs": [
+    "logs/phase2_validation_timed/qwen15b_zero_shot_eval16_timed_20260521_103026.log",
+    "logs/phase2_validation_timed/qwen15b_zero_shot_eval64_timed_20260521_103026.log",
+    "logs/phase2_validation_timed/qwen15b_zero_shot_eval8_timed_20260521_103026.log"
+  ]
 }

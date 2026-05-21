@@ -89,7 +89,16 @@ Deliverable:
 
 ```text
 reports/phase2_rollout_validation_profile.md
+reports/phase2_decision.md
 ```
+
+Current Phase 2 decision:
+
+- Timed eval runs show wall-clock runtimes of about 244s for eval8, 360s for
+  eval16, and 554s for eval64.
+- WebShop manager/worker step time remains around 35-47 ms.
+- The next optimization target is validation scheduling and generation/runtime
+  profiling, not WebShop environment stepping.
 
 ## Deferred Non-Invasive Optimizations
 
