@@ -68,6 +68,15 @@ python scripts/analyze_verl_log_timing.py \
 The markdown report is for reading. The JSON report is for later plotting,
 regression checks, and comparing optimization variants.
 
+For Phase 2 validation-specific analysis:
+
+```bash
+python scripts/build_phase2_validation_report.py \
+  --logs /path/to/WarmGiGPO-WebShop/logs/eval/*.log \
+  --out reports/phase2_rollout_validation_profile.md \
+  --json-out reports/phase2_rollout_validation_profile.json
+```
+
 ## Optional Env-Level Instrumentation
 
 Log-based profiling can only see trainer-level metrics. To profile WebShop

@@ -1,0 +1,69 @@
+{
+  "logs": {
+    "D:\\webshop\\logs\\rl\\qwen15b_gigpo_medium_128_64_20260518_145752.log": {
+      "short_name": "qwen15b_gigpo_medium_128_64_20260518_145752.log",
+      "step_rows": 33,
+      "normal_rows": 28,
+      "validation_rows": 4,
+      "avg_normal_step_s": 24.75775,
+      "avg_validation_step_s": 445.85275,
+      "avg_validation_testing_s": 421.82725,
+      "avg_validation_non_testing_s": 24.025500000000022,
+      "validation_testing_share": 0.9461133748754493,
+      "avg_gen_s_normal": 9.074785714285714,
+      "avg_gen_s_validation": 8.875,
+      "avg_response_length": 87.8113125,
+      "avg_prompt_length": 1048.45446875,
+      "cases": {
+        "parsed_cases": 134,
+        "scored_cases": 134,
+        "nonzero_cases": 3,
+        "success_score_10_cases": 3,
+        "avg_score": 0.22388059701492538
+      },
+      "action_counts": {
+        "click": 102,
+        "search": 25,
+        "unknown": 7
+      },
+      "search_query_total": 25,
+      "search_query_unique": 25,
+      "search_query_repeat_rate": 0.0,
+      "env_profile_events": {},
+      "avg_manager_step_s": null,
+      "avg_worker_step_s": null
+    },
+    "D:\\webshop\\logs\\rl\\qwen15b_sft_verl_gigpo_medium_128_64_20260518_141425.log": {
+      "short_name": "qwen15b_sft_verl_gigpo_medium_128_64_20260518_141425.log",
+      "step_rows": 33,
+      "normal_rows": 28,
+      "validation_rows": 4,
+      "avg_normal_step_s": 21.539214285714287,
+      "avg_validation_step_s": 353.343,
+      "avg_validation_testing_s": 332.45225,
+      "avg_validation_non_testing_s": 20.890750000000025,
+      "validation_testing_share": 0.940876853369106,
+      "avg_gen_s_normal": 6.554321428571429,
+      "avg_gen_s_validation": 6.4215,
+      "avg_response_length": 23.72771875,
+      "avg_prompt_length": 1036.0409375,
+      "cases": {
+        "parsed_cases": 99,
+        "scored_cases": 99,
+        "nonzero_cases": 19,
+        "success_score_10_cases": 19,
+        "avg_score": 1.9191919191919191
+      },
+      "action_counts": {
+        "click": 74,
+        "search": 25
+      },
+      "search_query_total": 25,
+      "search_query_unique": 25,
+      "search_query_repeat_rate": 0.0,
+      "env_profile_events": {},
+      "avg_manager_step_s": null,
+      "avg_worker_step_s": null
+    }
+  }
+}
