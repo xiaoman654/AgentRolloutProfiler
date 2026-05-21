@@ -66,3 +66,23 @@ experiment:
 - verify whether val-only resume or HF export can evaluate that exact actor
 
 Concrete server commands are in `docs/server_phase3_checkpoint_smoke.md`.
+
+## Smoke Result
+
+The checkpoint smoke test passed after moving both Ray temporary directories and
+checkpoint output to `/root/autodl-tmp`.
+
+Observed saved structure:
+
+- `global_step_2/actor`
+- `global_step_2/data.pt`
+- `latest_checkpointed_iteration.txt`
+
+The actor checkpoint directory was about 219G because it includes full actor
+and optimizer state files. This means checkpoint-based quality comparison is
+technically possible but storage-expensive. Phase 3 should not use frequent
+checkpoint saves for controlled runs. If final policy quality comparison is
+added, save only the final checkpoint, evaluate it immediately, and delete or
+export it after use.
+
+Detailed result: `reports/phase3_checkpoint_smoke_result.md`.

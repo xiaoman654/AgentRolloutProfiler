@@ -148,6 +148,7 @@ reports/phase3_eval_schedule_estimate.md
 reports/phase3_plan.md
 reports/phase3_checkpoint_feasibility.md
 reports/phase3_checkpoint_smoke_template.md
+reports/phase3_checkpoint_smoke_result.md
 ```
 
 Scope:
@@ -159,6 +160,9 @@ Scope:
   checkpoints evaluated on the same eval64 set
 - treat current WarmGiGPO-WebShop scripts as wall-clock-only unless checkpoint
   saving/evaluation is verified, because they set `trainer.save_freq=-1`
+- checkpoint saving has been verified, but the observed actor checkpoint is
+  about 219G, so any quality comparison must save at most final checkpoints and
+  write them to the data disk
 
 Out of scope:
 
