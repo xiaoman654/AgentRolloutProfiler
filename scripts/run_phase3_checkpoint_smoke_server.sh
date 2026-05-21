@@ -16,11 +16,12 @@ export RAY_TMPDIR=/root/autodl-tmp/ray
 PROJECT_DIR=/root/autodl-fs/WarmGiGPO-WebShop
 ARP_DIR=/root/autodl-fs/AgentRolloutProfiler
 MODEL_DIR=/root/.cache/huggingface/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306
-CKPT_DIR="$PROJECT_DIR/checkpoints/verl_agent_webshop/checkpoint_smoke_tiny"
+CKPT_DIR=/root/autodl-tmp/AgentRolloutProfiler/checkpoints/checkpoint_smoke_tiny
 LOG_DIR="$ARP_DIR/logs/phase3_checkpoint"
 
 mkdir -p "$LOG_DIR"
 mkdir -p "$TMPDIR" "$RAY_TMPDIR"
+mkdir -p "$(dirname "$CKPT_DIR")"
 
 echo "===== active jobs ====="
 ps aux | grep -E "main_ppo|TaskRunner|WorkerDict|actor_rollout|vllm|sft_lora.py|python" | grep -v grep || true
@@ -40,6 +41,7 @@ test -d "$PROJECT_DIR/third_party/verl-agent"
 test -d "$MODEL_DIR"
 test -f /root/data/verl-agent/text_tiny/train.parquet
 test -f /root/data/verl-agent/text_tiny/test.parquet
+df -hT / /root/autodl-tmp
 
 cd "$PROJECT_DIR/third_party/verl-agent"
 

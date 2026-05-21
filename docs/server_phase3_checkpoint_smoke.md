@@ -55,10 +55,11 @@ export RAY_TMPDIR=/root/autodl-tmp/ray
 PROJECT_DIR=/root/autodl-fs/WarmGiGPO-WebShop
 ARP_DIR=/root/autodl-fs/AgentRolloutProfiler
 MODEL_DIR=/root/.cache/huggingface/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306
-CKPT_DIR="$PROJECT_DIR/checkpoints/verl_agent_webshop/checkpoint_smoke_tiny"
+CKPT_DIR=/root/autodl-tmp/AgentRolloutProfiler/checkpoints/checkpoint_smoke_tiny
 
 mkdir -p "$ARP_DIR/logs/phase3_checkpoint"
 mkdir -p "$TMPDIR" "$RAY_TMPDIR"
+mkdir -p "$(dirname "$CKPT_DIR")"
 
 cd "$PROJECT_DIR/third_party/verl-agent"
 
@@ -132,7 +133,7 @@ echo "===== run checkpoint smoke ====="
 ```bash
 cd /root/autodl-fs/WarmGiGPO-WebShop
 
-CKPT_DIR=/root/autodl-fs/WarmGiGPO-WebShop/checkpoints/verl_agent_webshop/checkpoint_smoke_tiny
+CKPT_DIR=/root/autodl-tmp/AgentRolloutProfiler/checkpoints/checkpoint_smoke_tiny
 
 echo "===== checkpoint tree ====="
 find "$CKPT_DIR" -maxdepth 4 -type f | sort | head -200
