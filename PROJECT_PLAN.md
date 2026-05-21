@@ -54,6 +54,16 @@ Decision after Phase 1:
 - If parser time is visible in live profiling, test lightweight action parsing.
 - If none of the above is significant, document negative findings.
 
+Current Phase 1 decision:
+
+- A live WebShop `eval8` instrumentation run measured `manager_step` at roughly
+  0.046s and `worker_step` at roughly 0.044s.
+- Existing trainer logs show normal steps around 20-25s and validation steps
+  around 350-450s.
+- Therefore WebShop environment stepping is not the current dominant bottleneck.
+  The next phase should focus on rollout generation and validation profiling,
+  not environment cache/parser work.
+
 Optional instrumentation:
 
 - apply `patches/verl-agent-webshop-env-profile.patch` to a WarmGiGPO-WebShop
@@ -61,9 +71,29 @@ Optional instrumentation:
 - run a small eval/RL job with `tee`
 - parse `[ARP_PROFILE]` events to split WebShop manager/worker timing
 
-## Phase 2: Non-Invasive Optimizations
+## Phase 2: Rollout and Validation Profiling
 
-Pick one or two optimizations based on Phase 1 results.
+The original Phase 2 candidates remain available, but the first measured result
+points away from environment-wrapper optimization. The next step is to profile
+the rollout and validation path more precisely.
+
+Primary questions:
+
+- how much of validation is repeated model generation
+- how validation cost scales with eval batch size
+- whether response length, rollout length, or sampling settings dominate wall
+  time
+- whether GPU utilization drops during validation rollouts
+
+Deliverable:
+
+```text
+reports/phase2_rollout_validation_profile.md
+```
+
+## Deferred Non-Invasive Optimizations
+
+Pick one or two optimizations only if later profiling supports them.
 
 Candidate A: observation compression
 

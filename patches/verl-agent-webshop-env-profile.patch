@@ -31,7 +31,7 @@ diff --git a/agent_system/environments/env_manager.py b/agent_system/environment
 -        observations = {'text': self.build_text_obs(obs, infos, init=True), 
 +        _arp_text = self.build_text_obs(obs, infos, init=True)
 +        _arp_after_build_text_obs = time.perf_counter()
-+        observations = {'text': _arp_text, 
++        observations = {'text': _arp_text,
                          'image': None, 
                          'anchor': obs.copy()
                          }

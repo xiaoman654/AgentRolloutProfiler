@@ -28,6 +28,12 @@ where time is spent and produces a baseline profile:
 The first runnable path is log-based profiling using existing verl-agent logs.
 Live environment instrumentation can be added after the baseline is clear.
 
+Current Phase 1 finding: live WebShop environment profiling measured
+environment steps at roughly 40-50 ms, while trainer logs show normal steps in
+the 20s range and validation steps in the 350-450s range. The immediate
+bottleneck is therefore not WebShop environment stepping; the next focus is
+rollout generation and validation profiling. See `reports/phase1_decision.md`.
+
 ## Initial Layout
 
 ```text
