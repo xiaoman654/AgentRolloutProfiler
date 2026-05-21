@@ -60,15 +60,15 @@ cd /root/autodl-fs/WarmGiGPO-WebShop
 mkdir -p /root/autodl-fs/AgentRolloutProfiler/logs/phase2_validation
 
 echo "===== eval8 ====="
-(/usr/bin/time -p bash scripts/eval/run_qwen15b_zero_shot_eval8.sh) \
+{ time bash scripts/eval/run_qwen15b_zero_shot_eval8.sh; } \
   2>&1 | tee /root/autodl-fs/AgentRolloutProfiler/logs/phase2_validation/qwen15b_zero_shot_eval8_$(date +%Y%m%d_%H%M%S).log
 
 echo "===== eval16 ====="
-(/usr/bin/time -p bash scripts/eval/run_qwen15b_zero_shot_eval16.sh) \
+{ time bash scripts/eval/run_qwen15b_zero_shot_eval16.sh; } \
   2>&1 | tee /root/autodl-fs/AgentRolloutProfiler/logs/phase2_validation/qwen15b_zero_shot_eval16_$(date +%Y%m%d_%H%M%S).log
 
 echo "===== eval64 ====="
-(/usr/bin/time -p bash scripts/eval/run_qwen15b_zero_shot_eval64.sh) \
+{ time bash scripts/eval/run_qwen15b_zero_shot_eval64.sh; } \
   2>&1 | tee /root/autodl-fs/AgentRolloutProfiler/logs/phase2_validation/qwen15b_zero_shot_eval64_$(date +%Y%m%d_%H%M%S).log
 ```
 

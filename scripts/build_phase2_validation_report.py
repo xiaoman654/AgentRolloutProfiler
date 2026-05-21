@@ -247,7 +247,7 @@ def build_markdown(summary: dict[str, object]) -> str:
     lines.append("## Phase 2 Reading Guide")
     lines.append("")
     lines.append("- If `testing share` stays near 1.0, optimization should target validation rollout volume, generation throughput, or evaluation frequency.")
-    lines.append("- Eval-only logs may not contain `timing_s/testing`; in that case `wall real_s` from `/usr/bin/time -p` is the preferred latency signal.")
+    lines.append("- Eval-only logs may not contain `timing_s/testing`; in that case `wall real_s` from shell `time` output is the preferred latency signal.")
     lines.append("- If `manager_step_s` and `worker_step_s` remain below 0.1s, WebShop environment stepping is still not the priority.")
     lines.append("- If latency scales roughly linearly with eval size, validation batch size/frequency is a direct speed-quality tradeoff.")
     lines.append("- If score is unstable at small eval sizes, use small eval only for profiling and keep larger eval for final reporting.")

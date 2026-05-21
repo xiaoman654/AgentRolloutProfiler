@@ -18,6 +18,7 @@ ACTION_RE = re.compile(r"<action>(.*?)</action>", re.DOTALL)
 ACTION_TYPE_RE = re.compile(r"^\s*([a-zA-Z_ ]+)\[")
 PROFILE_MARKER = "[ARP_PROFILE]"
 TIME_P_RE = re.compile(r"^(real|user|sys)\s+(\d+(?:\.\d+)?)\s*$")
+BASH_TIME_RE = re.compile(r"^(real|user|sys)\s+(\d+)m(\d+(?:\.\d+)?)s\s*$")
 
 
 def clean_line(line: str) -> str:
@@ -142,7 +143,11 @@ def parse_profile_events(path: Path) -> list[EnvProfileEvent]:
 
 
 def parse_time_p_runtime(path: Path) -> LogRuntime:
-    """Parse `/usr/bin/time -p` output if it was captured by tee."""
+    """Parse shell timing output if it was captured by tee.
+
+    Supports both POSIX `time -p` lines such as `real 73.45` and Bash built-in
+    `time` lines such as `real 1m13.450s`.
+    """
 
     values: dict[str, float] = {}
     with path.open("r", encoding="utf-8", errors="ignore") as f:
@@ -151,6 +156,12 @@ def parse_time_p_runtime(path: Path) -> LogRuntime:
             match = TIME_P_RE.match(line)
             if match:
                 values[match.group(1)] = float(match.group(2))
+                continue
+            bash_match = BASH_TIME_RE.match(line)
+            if bash_match:
+                minutes = int(bash_match.group(2))
+                seconds = float(bash_match.group(3))
+                values[bash_match.group(1)] = minutes * 60.0 + seconds
     return LogRuntime(
         source_log=str(path),
         real_s=values.get("real"),
